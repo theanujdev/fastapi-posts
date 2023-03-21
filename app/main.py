@@ -1,6 +1,8 @@
-from fastapi import FastAPI
-from .routers import post, user
+from fastapi import FastAPI, Depends
+from .routers import post, user, authentication
 from .db.database import engine, Base
+from .auth.oauth2 import get_current_active_user
+from .db import models
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,10 +28,11 @@ app = FastAPI(
     },
 )
 
+app.include_router(authentication.router)
 app.include_router(post.router)
 app.include_router(user.router)
 
 
 @app.get("/", name="Root", description="### Base URL", tags=["Default"])
-async def root():
-    return {"message": "Hello from Posts API server!"}
+async def root(user: models.User = Depends(get_current_active_user)):
+    return {"message": f"Hello {user.username}! Welcome to Posts API server."}

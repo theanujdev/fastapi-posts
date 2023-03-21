@@ -11,9 +11,9 @@ def get_posts(db: Session, skip: int, limit: int):
     return db.query(models.Post).offset(skip).limit(limit).all()
 
 
-def create_post(db: Session, post: PostCreate):
+def create_post(db: Session, post: PostCreate, author_id: int):
     db_post = models.Post(title=post.title, body=post.body,
-                          author_id=post.author_id, is_published=post.is_published)
+                          author_id=author_id, is_published=post.is_published)
     db.add(db_post)
     db.commit()
     db.refresh(db_post)
